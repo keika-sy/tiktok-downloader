@@ -1,263 +1,527 @@
 # TikTok Video Downloader
 
-A comprehensive Python tool to download TikTok videos with multiple methods, batch support, and a clean terminal UI using Rich Table `box.ROUNDED`.
+A modern, terminal-based TikTok video downloader built with Python. Features an interactive menu system powered by [Rich](https://github.com/Textualize/rich) tables with rounded borders, multiple download methods, batch downloads, no-watermark support, and persistent configuration.
+
+![Python](https://img.shields.io/badge/Python-3.7%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Rich](https://img.shields.io/badge/Rich-UI-orange)
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Interactive Mode](#interactive-mode)
+  - [Command Line Mode](#command-line-mode)
+  - [Batch Download](#batch-download)
+  - [No Watermark](#no-watermark)
+- [Configuration](#configuration)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ## Features
 
 | Feature | Description |
 |---------|-------------|
-| Single Download | Download one video with method selection |
-| Batch Download | Download multiple URLs from file or input |
-| No Watermark | Remove TikTok watermark via API |
-| Video Info | View metadata without downloading |
-| Settings | Persistent configuration via INI file |
-| System Check | Verify all dependencies |
-| Rich UI | Clean minimalist terminal interface |
+| **Interactive Menu** | Beautiful terminal UI with Rich table layouts |
+| **Multiple Methods** | yt-dlp, API No Watermark, Direct download |
+| **No Watermark** | Remove TikTok watermark via API |
+| **Batch Download** | Process multiple URLs at once |
+| **Video Metadata** | View title, uploader, duration, views, likes |
+| **Progress Bar** | Real-time download progress with ETA |
+| **Persistent Config** | Save default settings to `~/.config/tiktok_downloader/settings.ini` |
+| **System Check** | Verify all dependencies before running |
 
-## Requirements
-
-```bash
-pip install yt-dlp rich requests
-```
-
-Or install from `requirements.txt`:
-
-```bash
-pip install -r requirements.txt
-```
+---
 
 ## Installation
 
-### 1. Clone Repository
+### Prerequisites
+
+- Python 3.7 or higher
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) (required)
+
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/keika-sy/tiktok-downloader.git
 cd tiktok-downloader
 ```
 
-### 2. Install Dependencies
+### Step 2: Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Run the Tool
+Or install manually:
+
+```bash
+pip install yt-dlp rich requests
+```
+
+### Step 3: Verify Installation
 
 ```bash
 python tiktok_downloader.py
+# Select option 6 (System Check)
 ```
+
+Expected output:
+```
++-------------------------------+
+|         SYSTEM CHECK          |
++----------+--------+-----------+
+| Component| Status | Version   |
++----------+--------+-----------+
+| Python   | OK     | 3.11.0    |
+| yt-dlp   | OK     | 2025.01.01|
+| rich     | OK     | 13.7.0    |
+| requests | OK     | 2.31.0    |
++----------+--------+-----------+
+```
+
+---
 
 ## Usage
 
 ### Interactive Mode (Recommended)
 
-Launch the interactive menu with Rich UI:
+Launch the interactive menu for a guided experience:
 
 ```bash
 python tiktok_downloader.py
 ```
 
-Menu options:
-- `1` Download Video - Download a single TikTok video
-- `2` Batch Download - Download multiple videos at once
-- `3` Video Info - View video metadata without downloading
-- `4` No Watermark - Download video without TikTok watermark
-- `5` Settings - Configure preferences
-- `6` System Check - Verify dependencies
-- `0` Exit - Quit the application
+This will display the main menu:
 
-### CLI - Single Download
+```
++-------------------------------+
+|           MAIN MENU           |
++----+---------------+----------+
+| No | Option        | Icon     |
++----+---------------+----------+
+| 1  | Download Video| VID      |
+| 2  | Batch Download| BAT      |
+| 3  | Video Info    | INF      |
+| 4  | No Watermark  | NOWM     |
+| 5  | Settings      | SET      |
+| 6  | System Check  | CHK      |
+| 0  | Exit          | EXT      |
++----+---------------+----------+
+```
 
-Download one video using default settings:
+**Navigation:**
+1. Enter the number of your choice
+2. Follow the on-screen prompts
+3. Press Enter to continue after each operation
+
+### Command Line Mode
+
+For quick downloads without the interactive menu:
+
+#### Download Single Video
 
 ```bash
+# Using default method (yt-dlp)
 python tiktok_downloader.py -u "https://vt.tiktok.com/xxxxx"
+
+# Specify method
+python tiktok_downloader.py -u "URL" -m ytdlp
+python tiktok_downloader.py -u "URL" -m api
+python tiktok_downloader.py -u "URL" -m direct
 ```
 
-Specify method and output:
+#### No Watermark Download
 
 ```bash
-python tiktok_downloader.py -u "URL" -m ytdlp -o /path/to/folder
+# Download without TikTok watermark
+python tiktok_downloader.py -u "URL" --no-watermark
 ```
 
-### CLI - Batch Download
-
-Download multiple URLs at once:
+#### Custom Output Directory
 
 ```bash
+# Save to specific folder
+python tiktok_downloader.py -u "URL" -o ~/Videos
+python tiktok_downloader.py -u "URL" -o /sdcard/Download
+```
+
+#### Video Info Only
+
+```bash
+# View metadata without downloading
+python tiktok_downloader.py -u "URL" --info
+```
+
+#### Open Settings
+
+```bash
+# Configure preferences via interactive menu
+python tiktok_downloader.py --settings
+```
+
+### Batch Download
+
+Download multiple videos at once from input.
+
+#### Interactive Batch Mode
+
+```bash
+python tiktok_downloader.py
+# Select option 2 (Batch Download)
+# Enter URLs one per line, blank line to finish
+```
+
+#### CLI Batch Mode
+
+```bash
+# Download multiple URLs
 python tiktok_downloader.py -u "URL1" "URL2" "URL3" --batch
-```
 
-Set concurrent workers:
-
-```bash
+# Set concurrent workers
 python tiktok_downloader.py -u "URL1" "URL2" --batch --max-workers 5
 ```
 
-### CLI - No Watermark
+#### Review Results
 
-Download video without TikTok watermark:
+After completion, a summary table will display:
 
+```
++-------------------------------+
+|   BATCH DOWNLOAD SUMMARY      |
++----+--------+--------+--------+
+| #  | Status | Title  | Size   |
++----+--------+--------+--------+
+| 1  | OK     | Vid 1  | 2.3 MB |
+| 2  | OK     | Vid 2  | 5.1 MB |
+| 3  | FAIL   | Vid 3  | -      |
++----+--------+--------+--------+
+| Successful: 2 | Failed: 1 | Total: 3 |
++-------------------------------+
+```
+
+### No Watermark
+
+Download TikTok videos without the TikTok watermark:
+
+**Interactive mode:**
+```bash
+python tiktok_downloader.py
+# Select option 4 (No Watermark)
+# Enter TikTok URL
+```
+
+**CLI mode:**
 ```bash
 python tiktok_downloader.py -u "URL" --no-watermark
 ```
 
-### CLI - Video Info Only
+This uses the TikTok API to fetch the clean video source.
 
-View metadata without downloading:
+---
+
+## Configuration
+
+Settings are automatically saved to `~/.config/tiktok_downloader/settings.ini`.
+
+### Change Settings via Interactive Menu
+
+1. Run `python tiktok_downloader.py`
+2. Select option **5 (Settings)**
+3. Choose the setting to modify:
+
+```
++-------------------------------+
+|           SETTINGS            |
++----+----------------+---------+
+| No | Setting        | Current |
++----+----------------+---------+
+| 1  | Output Dir     | ~/Down..|
+| 2  | Default Method | ytdlp   |
+| 3  | Max Workers    | 3       |
+| 4  | Auto Open      | false   |
+| 5  | Thumbnails     | true    |
+| 6  | Quality        | best    |
+| 7  | Save Metadata  | true    |
+| 8  | Clear Screen   | true    |
+| 9  | Reset Default  | -       |
+| 0  | Back to Menu   | -       |
++----+----------------+---------+
+```
+
+### Manual Config File
+
+You can also edit the config file directly:
 
 ```bash
-python tiktok_downloader.py -u "URL" --info
+nano ~/.config/tiktok_downloader/settings.ini
 ```
 
-### CLI - Open Settings
+Example configuration:
 
-Configure preferences via interactive menu:
+```ini
+[General]
+download_dir = /home/user/Downloads/TikTok_Videos
+default_method = ytdlp
+max_workers = 3
+auto_open_folder = false
+show_thumbnails = true
 
-```bash
-python tiktok_downloader.py --settings
+[Download]
+quality = best
+no_watermark = false
+save_metadata = true
+
+[UI]
+theme = default
+show_progress_bar = true
+clear_screen = true
 ```
 
-### CLI - Interactive Mode Flag
+### Config Options Reference
 
-Force interactive menu even with other args:
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `download_dir` | string | `~/Downloads/TikTok_Videos` | Download destination folder |
+| `default_method` | string | `ytdlp` | Default download method (ytdlp/api/direct) |
+| `max_workers` | integer | `3` | Concurrent download threads (1-10) |
+| `auto_open_folder` | boolean | `false` | Open folder after download |
+| `show_thumbnails` | boolean | `true` | Display thumbnails in info view |
+| `quality` | string | `best` | Video quality preset |
+| `save_metadata` | boolean | `true` | Save `.json` metadata file |
+| `clear_screen` | boolean | `true` | Auto clear terminal on menu |
 
-```bash
-python tiktok_downloader.py --interactive
-```
-
-## Download Methods
-
-| Method | Description | Best For |
-|--------|-------------|----------|
-| yt-dlp | Best quality, recommended | All videos |
-| API No WM | Without watermark | Clean videos |
-| Direct | Fallback method | Quick download |
-
-### Method Selection in Interactive Mode
-
-When downloading, you will be prompted to select a method:
-
-```
-1. yt-dlp     - Best quality, recommended
-2. API No WM  - Without watermark
-3. Direct     - Fallback method
-```
-
-## Settings
-
-Settings are stored in `~/.config/tiktok_downloader/settings.ini` and persist between sessions.
-
-### Available Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Download Directory | `~/Downloads/TikTok_Videos` | Save location for downloaded videos |
-| Default Method | `yt-dlp` | Preferred download method (ytdlp/api/direct) |
-| Max Workers | `3` | Number of concurrent downloads (1-10) |
-| Auto Open Folder | `false` | Automatically open folder after download |
-| Show Thumbnails | `true` | Display video thumbnails in info view |
-| Quality | `best` | Video quality preset (best/1080p/720p/480p/360p/audio) |
-| Save Metadata | `true` | Save `.json` file with video metadata |
-| Clear Screen | `true` | Auto clear terminal when returning to menu |
-
-### Changing Settings
-
-1. Select menu option `5` (Settings) in interactive mode
-2. Choose the setting number to modify
-3. Enter new value or toggle ON/OFF
-4. Settings auto-save to INI file
-
-### Reset to Default
-
-In Settings menu, select option `9` to restore all defaults.
+---
 
 ## Project Structure
 
 ```
 tiktok-downloader/
-|-- tiktok_downloader.py    # Main script
+|-- tiktok_downloader.py    # Main script (entry point)
 |-- requirements.txt        # Python dependencies
 |-- README.md               # Documentation
+|-- LICENSE                 # MIT License
 |-- .gitignore              # Git ignore rules
+|-- examples/
+|   |-- urls.txt            # Example batch URL file
 ```
 
-## Output Files
+---
 
-When `Save Metadata` is enabled (default), each download creates two files:
+## Requirements
 
-```
-20260520_114534.mp4       # Video file
-20260520_114534.json      # Metadata file (title, views, likes, etc.)
-```
+### Python Packages
 
-To disable metadata files, go to Settings and set `Save Metadata` to OFF.
+| Package | Minimum Version | Purpose |
+|---------|-----------------|---------|
+| Python  | 3.7+            | Runtime environment |
+| yt-dlp  | 2023.0.0        | Video download engine |
+| rich    | 13.0.0          | Terminal UI and tables |
+| requests| 2.31.0          | HTTP requests for API |
 
-## System Check
+### Supported Platforms
 
-Run dependency verification:
+- Linux (Ubuntu, Debian, Fedora, Arch)
+- macOS (Intel & Apple Silicon)
+- Windows (10/11)
+- Termux (Android)
 
-```bash
-python tiktok_downloader.py
-# Then select option 6 (System Check)
-```
-
-Or via CLI:
-
-```bash
-python tiktok_downloader.py --check
-```
-
-Checks for:
-- Python version (3.7+)
-- yt-dlp installation
-- rich library
-- requests library
+---
 
 ## Troubleshooting
 
-### yt-dlp not found
+### yt-dlp Not Found
 
+**Error:** `yt-dlp not installed`
+
+**Solution:**
 ```bash
-pip install yt-dlp
+pip install --upgrade yt-dlp
 ```
 
-### Rich UI not displaying
-
+If still not found, try:
 ```bash
-pip install rich
+python -m pip install yt-dlp
 ```
 
-### Download fails with API method
+### Permission Denied (Linux/macOS/Termux)
 
+**Error:** `Permission denied`
+
+**Solution:**
+```bash
+chmod +x tiktok_downloader.py
+```
+
+Or run with Python explicitly:
+```bash
+python tiktok_downloader.py
+```
+
+Also check your download directory permissions:
+```bash
+# Android/Termux - use sdcard
+/sdcard/Download/TikTok_Videos
+
+# Linux/Mac
+~/Downloads/TikTok_Videos
+
+# Windows
+C:\Users\Name\Downloads\TikTok_Videos
+```
+
+### Slow Download Speeds
+
+**Possible causes and solutions:**
+
+1. **Network issues:** Check your internet connection
+2. **VPN/Proxy:** Some VPNs slow down TikTok traffic
+3. **Peak hours:** Try downloading during off-peak hours
+4. **Method selection:** Try `direct` method for faster fallback
+
+### API Method Fails
+
+**Error:** `Failed to download via API`
+
+**Possible causes:**
+- Video is private or deleted
+- TikTok API rate limiting
+- URL is invalid or expired
+
+**Solution:**
 - Try `yt-dlp` method instead
-- Ensure URL is valid and public
-- Check internet connection
+- Verify the URL in your browser first
+- Wait a few minutes and retry
 
-### Permission denied on download folder
+### Video Info Cannot Be Retrieved
 
-Change download directory in Settings to a writable path:
+**Possible causes:**
+- Video is private or region-blocked
+- Video has been removed
+- URL is invalid
 
+**Solution:** Verify the URL in your browser first.
+
+### Config File Corrupted
+
+**Solution:** Delete and regenerate:
 ```bash
-# Example
-/sdcard/Download/TikTok_Videos        # Android/Termux
-~/Downloads/TikTok_Videos              # Linux/Mac
-C:\Users\Name\Downloads\TikTok_Videos  # Windows
+rm ~/.config/tiktok_downloader/settings.ini
+python tiktok_downloader.py
+# Settings will be recreated with defaults
 ```
 
-## Platform Support
+### Unicode/Encoding Errors
 
-| Platform | Status | Notes |
-|----------|--------|-------|
-| Linux | Supported | Full features |
-| macOS | Supported | Full features |
-| Windows | Supported | Full features |
-| Android/Termux | Supported | Use `/sdcard` for storage |
+**Solution:** Ensure your terminal supports UTF-8:
+```bash
+export PYTHONIOENCODING=utf-8
+```
+
+---
+
+## Contributing
+
+Contributions are welcome. Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch:
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Commit** your changes:
+   ```bash
+   git commit -m "Add amazing feature"
+   ```
+4. **Push** to the branch:
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. **Open** a Pull Request
+
+### Development Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/keika-sy/tiktok-downloader.git
+cd tiktok-downloader
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate   # Windows
+
+# Install dev dependencies
+pip install -r requirements.txt
+pip install pytest black flake8
+
+# Run tests
+pytest
+
+# Format code
+black tiktok_downloader.py
+```
+
+---
 
 ## License
 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+```
 MIT License
+
+Copyright (c) 2025 keika-sy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
+
+---
+
+## Acknowledgments
+
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - The powerful download engine
+- [Rich](https://github.com/Textualize/rich) - Beautiful terminal formatting
+- [requests](https://requests.readthedocs.io/) - HTTP library for Python
+
+---
 
 ## Disclaimer
 
-This tool is for educational purposes only. Respect content creators' rights and TikTok's Terms of Service. Do not use for unauthorized redistribution of content.
+This tool is for educational and personal use only. Respect copyright laws and TikTok's Terms of Service. The authors are not responsible for any misuse of this software.
+
+**Do not use this tool to:**
+- Download copyrighted content without permission
+- Redistribute downloaded content commercially
+- Circumvent content protection mechanisms
+- Violate any local or international laws
+
+---
+
+## Contact
+
+For questions, issues, or suggestions:
+
+- Open an [Issue](https://github.com/keika-sy/tiktok-downloader/issues)
+- Start a [Discussion](https://github.com/keika-sy/tiktok-downloader/discussions)
+
+---
+
+**Happy Downloading!**
